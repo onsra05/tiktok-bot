@@ -2,12 +2,13 @@ import os
 import glob
 import subprocess
 import threading
+import httpx
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from telegram import Update
 from telegram.ext import Application, MessageHandler, filters, ContextTypes
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
-DOWNLOAD_DIR = "/tmp/downloads"  # Dùng /tmp thay vì thư mục local
+DOWNLOAD_DIR = "/tmp/downloads"
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
 class PingHandler(BaseHTTPRequestHandler):
@@ -23,6 +24,42 @@ def run_web_server():
     server = HTTPServer(("0.0.0.0", port), PingHandler)
     server.serve_forever()
 
+async def get_tiktok_video_url(url: str) -> str:
+    """Dùng API tikhub để lấy link video không watermark"""
+    api_url = f"https://api.tiklydown.eu.org/api/download?url={url}"
+    
+    async with httpx.AsyncClient(timeout=30) as client:
+        response = await client.get(api_url)
+        data = response.json()
+    
+    print("API response:", data)
+    
+    # Lấy link video không watermark
+    video_url = data.get("video", {}).get("noWatermark") or \
+                data.get("video", {}).get("origin") or \
+                data.get("video", {}).get("watermark")
+    
+    if not video_url:
+        raise Exception("Không lấy được link video từ API")
+    
+    return video_url
+
+async def download_video(video_url: str) -> str:
+    """Download video từ direct link"""
+    output_path = os.path.join(DOWNLOAD_DIR, "video.mp4")
+    
+    headers = {
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X)",
+        "Referer": "https://www.tiktok.com/"
+    }
+    
+    async with httpx.AsyncClient(timeout=60, follow_redirects=True) as client:
+        response = await client.get(video_url, headers=headers)
+        with open(output_path, "wb") as f:
+            f.write(response.content)
+    
+    return output_path
+
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     url = update.message.text.strip()
 
@@ -33,43 +70,20 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     msg = await update.message.reply_text("⏳ Đang tải video, chờ chút...")
 
     try:
-        # Xóa file cũ trước
-        for f in glob.glob(os.path.join(DOWNLOAD_DIR, "*")):
-            os.remove(f)
-
-        output_template = os.path.join(DOWNLOAD_DIR, "video.%(ext)s")
-
-        cmd = [
-            "yt-dlp",
-            "--no-warnings",
-            "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
-            "--merge-output-format", "mp4",
-            "--add-header", "User-Agent:TikTok 26.2.0 rv:262018 (iPhone; iOS 14.4.2; en_US) Cronet",
-            "-o", output_template,
-            url
-        ]
-
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+        await msg.edit_text("🔍 Đang lấy link video...")
+        video_url = await get_tiktok_video_url(url)
         
-        # Log để debug
-        print("STDOUT:", result.stdout)
-        print("STDERR:", result.stderr)
-
-        # Tìm file mp4
-        files = glob.glob(os.path.join(DOWNLOAD_DIR, "*.mp4"))
+        await msg.edit_text("⬇️ Đang tải video...")
+        video_path = await download_video(video_url)
         
-        if not files:
-            # Thử tìm bất kỳ file nào
-            files = glob.glob(os.path.join(DOWNLOAD_DIR, "*"))
-
-        if not files:
-            raise Exception(f"Không tìm thấy file. STDERR: {result.stderr[:200]}")
-
-        video_file = files[0]
-        print("Found file:", video_file)
+        file_size = os.path.getsize(video_path)
+        print(f"File size: {file_size} bytes")
+        
+        if file_size < 1000:
+            raise Exception("File tải về quá nhỏ, có thể bị lỗi")
 
         await msg.edit_text("📤 Đang gửi video...")
-        with open(video_file, "rb") as f:
+        with open(video_path, "rb") as f:
             await update.message.reply_video(
                 video=f,
                 caption="✅ Video TikTok HD - Không logo",
@@ -77,10 +91,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
 
         await msg.delete()
-        os.remove(video_file)
+        os.remove(video_path)
 
-    except subprocess.TimeoutExpired:
-        await msg.edit_text("❌ Timeout! Link này mất quá lâu để tải.")
     except Exception as e:
         await msg.edit_text(f"❌ Lỗi: {str(e)}")
 
