@@ -25,16 +25,14 @@ def run_web_server():
     server.serve_forever()
 
 async def get_tiktok_video_url(url: str) -> str:
-    """Dùng API tikhub để lấy link video không watermark"""
     api_url = f"https://api.tiklydown.eu.org/api/download?url={url}"
     
-    async with httpx.AsyncClient(timeout=30) as client:
+    async with httpx.AsyncClient(timeout=30, verify=False) as client:
         response = await client.get(api_url)
         data = response.json()
     
     print("API response:", data)
     
-    # Lấy link video không watermark
     video_url = data.get("video", {}).get("noWatermark") or \
                 data.get("video", {}).get("origin") or \
                 data.get("video", {}).get("watermark")
@@ -45,7 +43,6 @@ async def get_tiktok_video_url(url: str) -> str:
     return video_url
 
 async def download_video(video_url: str) -> str:
-    """Download video từ direct link"""
     output_path = os.path.join(DOWNLOAD_DIR, "video.mp4")
     
     headers = {
@@ -53,7 +50,7 @@ async def download_video(video_url: str) -> str:
         "Referer": "https://www.tiktok.com/"
     }
     
-    async with httpx.AsyncClient(timeout=60, follow_redirects=True) as client:
+    async with httpx.AsyncClient(timeout=60, follow_redirects=True, verify=False) as client:
         response = await client.get(video_url, headers=headers)
         with open(output_path, "wb") as f:
             f.write(response.content)
