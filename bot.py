@@ -1,7 +1,9 @@
 import os
 import threading
-import httpx
+import asyncio
 from http.server import HTTPServer, BaseHTTPRequestHandler
+
+import yt_dlp
 from telegram import Update
 from telegram.ext import Application, MessageHandler, filters, ContextTypes
 
@@ -9,7 +11,7 @@ BOT_TOKEN = os.environ.get("BOT_TOKEN")
 DOWNLOAD_DIR = "/tmp/downloads"
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
-# ---------------- WEB SERVER (để giữ Render sống) ----------------
+# ---------------- WEB SERVER (Render keep alive) ----------------
 class PingHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
@@ -24,67 +26,26 @@ def run_web_server():
     server = HTTPServer(("0.0.0.0", port), PingHandler)
     server.serve_forever()
 
-# ---------------- EXPAND LINK TIKTOK ----------------
-async def expand_tiktok_url(url: str) -> str:
-    try:
-        async with httpx.AsyncClient(follow_redirects=False, timeout=10) as client:
-            res = await client.get(url)
-            if "location" in res.headers:
-                return res.headers["location"]
-            return url
-    except:
-        return url
-
-# ---------------- API CHÍNH ----------------
-async def get_tiktok_video_url(url: str) -> str:
-    api_url = f"https://api.tiklydown.eu.org/api/download?url={url}"
-    
-    async with httpx.AsyncClient(timeout=30) as client:
-        response = await client.get(api_url)
-        data = response.json()
-    
-    print("API 1 response:", data)
-
-    video_url = data.get("video", {}).get("noWatermark") or \
-                data.get("video", {}).get("origin") or \
-                data.get("video", {}).get("watermark")
-
-    if not video_url:
-        raise Exception("API 1 không trả video")
-
-    return video_url
-
-# ---------------- API BACKUP ----------------
-async def get_video_backup(url: str) -> str:
-    api_url = f"https://tikwm.com/api/?url={url}"
-    
-    async with httpx.AsyncClient(timeout=30) as client:
-        res = await client.get(api_url)
-        data = res.json()
-
-    print("API 2 response:", data)
-
-    video_url = data.get("data", {}).get("play")
-
-    if not video_url:
-        raise Exception("API backup cũng lỗi")
-
-    return video_url
-
-# ---------------- DOWNLOAD VIDEO ----------------
-async def download_video(video_url: str) -> str:
-    output_path = os.path.join(DOWNLOAD_DIR, "video.mp4")
-
-    headers = {
-        "User-Agent": "Mozilla/5.0",
-        "Referer": "https://www.tiktok.com/"
+# ---------------- DOWNLOAD WITH YT-DLP ----------------
+def download_sync(url: str, output_path: str):
+    ydl_opts = {
+        'outtmpl': output_path,
+        'format': 'mp4',
+        'quiet': True,
+        'noplaylist': True,
+        'http_headers': {
+            'User-Agent': 'Mozilla/5.0'
+        }
     }
 
-    async with httpx.AsyncClient(timeout=60, follow_redirects=True) as client:
-        response = await client.get(video_url, headers=headers)
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        ydl.download([url])
 
-        with open(output_path, "wb") as f:
-            f.write(response.content)
+async def download_tiktok_video(url: str) -> str:
+    output_path = os.path.join(DOWNLOAD_DIR, "video.mp4")
+
+    loop = asyncio.get_event_loop()
+    await loop.run_in_executor(None, download_sync, url, output_path)
 
     return output_path
 
@@ -99,30 +60,15 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     msg = await update.message.reply_text("⏳ Đang xử lý...")
 
     try:
-        # 1. Expand link
-        await msg.edit_text("🔗 Đang xử lý link...")
-        expanded_url = await expand_tiktok_url(url)
-        print("Expanded:", expanded_url)
-
-        # 2. Lấy video (có backup)
-        await msg.edit_text("🔍 Đang lấy video...")
-
-        try:
-            video_url = await get_tiktok_video_url(expanded_url)
-            print("✅ Dùng API 1")
-        except Exception as e:
-            print("❌ API 1 lỗi:", e)
-            video_url = await get_video_backup(expanded_url)
-            print("✅ Dùng API 2")
-
-        # 3. Download
+        # Download video
         await msg.edit_text("⬇️ Đang tải video...")
-        video_path = await download_video(video_url)
+        video_path = await download_tiktok_video(url)
 
-        if os.path.getsize(video_path) < 1000:
-            raise Exception("File lỗi hoặc quá nhỏ")
+        # Check file
+        if not os.path.exists(video_path) or os.path.getsize(video_path) < 1000:
+            raise Exception("File lỗi hoặc không tải được")
 
-        # 4. Gửi video
+        # Send video
         await msg.edit_text("📤 Đang gửi video...")
         with open(video_path, "rb") as f:
             await update.message.reply_video(
