@@ -6,7 +6,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     Application, MessageHandler,
-    filters, ContextTypes, ConversationHandler,
+    filters, ContextTypes,
     CallbackQueryHandler
 )
 import yt_dlp
@@ -14,24 +14,34 @@ import yt_dlp
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 FB_PAGE_TOKEN = os.environ.get("FB_PAGE_TOKEN")
 FB_PAGE_ID = os.environ.get("FB_PAGE_ID")
+SHOPEE_URL = os.environ.get("SHOPEE_URL", "https://shopee.vn")
 DOWNLOAD_DIR = "/tmp/downloads"
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
 user_data_store = {}
 
-# ---------------- WEB SERVER → SERVE index.html ----------------
+# ---------------- WEB SERVER ----------------
 class WebHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         try:
             base_dir = os.path.dirname(os.path.abspath(__file__))
             html_path = os.path.join(base_dir, "index.html")
-            with open(html_path, "rb") as f:
+            with open(html_path, "r", encoding="utf-8") as f:
                 content = f.read()
+
+            # Inject SHOPEE_URL vào meta tag
+            content = content.replace(
+                '</head>',
+                f'<meta name="shopee-url" content="{SHOPEE_URL}">\n</head>'
+            )
+
+            encoded = content.encode("utf-8")
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
-            self.send_header("Content-Length", str(len(content)))
+            self.send_header("Content-Length", str(len(encoded)))
             self.end_headers()
-            self.wfile.write(content)
+            self.wfile.write(encoded)
+
         except FileNotFoundError:
             self.send_response(200)
             self.end_headers()
@@ -72,10 +82,7 @@ def post_to_facebook(video_path: str, caption: str, shopee_url: str) -> bool:
     with open(video_path, "rb") as video_file:
         response = requests.post(
             upload_url,
-            data={
-                "description": full_caption,
-                "access_token": FB_PAGE_TOKEN,
-            },
+            data={"description": full_caption, "access_token": FB_PAGE_TOKEN},
             files={"file": video_file},
             timeout=120
         )
@@ -83,8 +90,7 @@ def post_to_facebook(video_path: str, caption: str, shopee_url: str) -> bool:
     print("FB response:", result)
     if "id" in result:
         return True
-    else:
-        raise Exception(result.get("error", {}).get("message", "Lỗi không xác định"))
+    raise Exception(result.get("error", {}).get("message", "Lỗi không xác định"))
 
 # ---------------- TELEGRAM HANDLERS ----------------
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -95,7 +101,7 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if waiting == "caption":
         context.user_data["caption"] = text
         context.user_data["waiting"] = "shopee"
-        await update.message.reply_text("🛒 Nhập link Shopee:")
+        await update.message.reply_text("🛒 Nhập link Shopee cho bài đăng FB:")
 
     elif waiting == "shopee":
         shopee_url = text
@@ -143,17 +149,14 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await msg.delete()
         except Exception as e:
             await msg.edit_text(f"❌ Lỗi: {str(e)}")
-
     else:
         await update.message.reply_text("👋 Gửi link TikTok để bắt đầu!")
 
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
-
     if query.data == "only_download":
         await query.edit_message_caption("✅ Xong! Gửi link TikTok khác nếu muốn tải thêm.")
-
     elif query.data == "post_facebook":
         await query.edit_message_caption("✏️ Nhập caption cho bài đăng Facebook:")
         context.user_data["waiting"] = "caption"
