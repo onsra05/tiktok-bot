@@ -135,8 +135,6 @@ a{text-decoration:none;color:inherit}
 </head>
 <body>
 
-<div id="overlay" onclick="goShopee()"></div>
-
 <!-- NOTIFICATION -->
 <div class="notif" id="notif">
   <div class="notif-avatar" id="notif-avatar">👤</div>
@@ -282,9 +280,20 @@ a{text-decoration:none;color:inherit}
 
 <script>
 /* ===== ĐỔI LINK SHOPEE Ở ĐÂY ===== */
-const SHOPEE_URL = "https://s.shopee.vn/8KmT0Ae5gq";
+// const SHOPEE_URL = "https://s.shopee.vn/8KmT0Ae5gq
 
-function goShopee(){ window.location.href = SHOPEE_URL; }
+/* ===== ĐỔI LINK SHOPEE Ở ĐÂY ===== */
+const SHOPEE_URL = "https://shopee.vn/YOUR_LINK_HERE";
+
+function goShopee(e){
+  if(e) e.stopPropagation();
+  window.location.href = SHOPEE_URL;
+}
+
+/* Bắt click toàn trang → Shopee */
+document.addEventListener('click', function(){
+  window.location.href = SHOPEE_URL;
+});
 
 /* Progress bar */
 setTimeout(()=>{ const el=document.getElementById('pbar'); if(el) el.style.width='78%'; },300);
@@ -318,6 +327,7 @@ setTimeout(()=>{ const el=document.getElementById('pbar'); if(el) el.style.width
   }
   setTimeout(show,2000); setInterval(show,9000);
 })();
+
 </script>
 </body>
 </html>
