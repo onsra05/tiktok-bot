@@ -1,576 +1,323 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔥 Deal Sốc Hôm Nay - Giảm Đến 80%</title>
-    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Deal sốc mỗi ngày - Giảm giá đến 80% hàng ngàn sản phẩm chính hãng">
+<title>DealHot – Săn Deal Sốc Mỗi Ngày 🔥</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2063079750881080" crossorigin="anonymous"></script>
+<style>
+:root{
+  --primary:#FF4D00;--primary-soft:#FF6B2B;--accent:#FFB800;
+  --dark:#0F0F0F;--dark2:#1A1A1A;--dark3:#242424;--surface:#1E1E1E;
+  --border:rgba(255,255,255,0.08);--text:#F5F5F5;--text-muted:#888;
+  --radius:16px;--radius-sm:10px;
+  --shadow:0 20px 60px rgba(0,0,0,0.4);
+  --glow:0 0 40px rgba(255,77,0,0.25);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-tap-highlight-color:transparent}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--dark);color:var(--text);min-height:100vh;overflow-x:hidden;cursor:pointer}
+button{cursor:pointer;border:none;background:none;font-family:inherit}
+a{text-decoration:none;color:inherit}
 
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2063079750881080"
-         crossorigin="anonymous"></script>
+#overlay{position:fixed;inset:0;z-index:9000;cursor:pointer}
 
-    <style>
-        :root {
-            --orange: #FF6B00;
-            --red: #EE4D2D;
-            --yellow: #FFD600;
-            --bg: #fff7f0;
-            --dark: #1a1a1a;
-        }
+/* HEADER */
+.header{position:sticky;top:0;z-index:100;background:rgba(15,15,15,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.live-badge{display:flex;align-items:center;gap:6px;background:rgba(255,77,0,0.15);border:1px solid rgba(255,77,0,0.3);padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;color:var(--primary)}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--primary);animation:livePulse 1.2s infinite}
+@keyframes livePulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(1.4)}}
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+/* COUNTDOWN */
+.countdown-bar{background:linear-gradient(90deg,var(--primary),var(--primary-soft));padding:10px 20px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:13px;font-weight:700}
+.timer-wrap{display:flex;gap:4px;align-items:center}
+.timer-block{background:rgba(0,0,0,0.25);padding:4px 8px;border-radius:6px;font-size:17px;font-weight:800;font-variant-numeric:tabular-nums;min-width:32px;text-align:center}
+.timer-sep{font-size:17px;font-weight:800;opacity:0.7;margin-top:-2px}
 
-        body {
-            font-family: 'Nunito', sans-serif;
-            background: var(--bg);
-            min-height: 100vh;
-            cursor: pointer;
-            overflow-x: hidden;
-        }
+/* HERO */
+.hero{position:relative;overflow:hidden;padding:40px 20px 50px;text-align:center}
+.hero-bg{position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(255,77,0,0.18),transparent),radial-gradient(ellipse 60% 40% at 80% 80%,rgba(255,184,0,0.08),transparent)}
+.hero-content{position:relative;z-index:1}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(255,184,0,0.1);border:1px solid rgba(255,184,0,0.25);color:var(--accent);font-size:12px;font-weight:700;padding:5px 14px;border-radius:20px;margin-bottom:16px;letter-spacing:1px;text-transform:uppercase}
+.hero-title{font-family:'Syne',sans-serif;font-size:clamp(32px,7vw,52px);font-weight:800;line-height:1.1;margin-bottom:14px;letter-spacing:-1px}
+.hero-title span{background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{color:var(--text-muted);font-size:15px;max-width:320px;margin:0 auto 28px;line-height:1.6}
+.hero-cta{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--primary),var(--primary-soft));color:white;font-weight:800;font-size:16px;padding:16px 32px;border-radius:14px;box-shadow:0 8px 32px rgba(255,77,0,0.4),var(--glow);transition:transform 0.2s,box-shadow 0.2s;animation:ctaPop 3s ease infinite}
+@keyframes ctaPop{0%,90%,100%{transform:scale(1)}95%{transform:scale(1.04)}}
+.hero-cta:hover{transform:translateY(-3px);box-shadow:0 16px 48px rgba(255,77,0,0.5)}
+.hero-stats{display:flex;justify-content:center;gap:32px;margin-top:32px;padding-top:24px;border-top:1px solid var(--border)}
+.stat{text-align:center}
+.stat-num{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-label{font-size:11px;color:var(--text-muted);margin-top:2px}
 
-        /* Toàn bộ trang là 1 link ẩn */
-        #trap-overlay {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: 9999;
-            cursor: pointer;
-        }
+/* SECTION */
+.section{padding:0 16px;margin-bottom:28px;max-width:560px;margin-left:auto;margin-right:auto}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.section-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;display:flex;align-items:center;gap:8px}
+.section-more{font-size:12px;color:var(--primary);font-weight:600}
 
-        /* Header */
-        .header {
-            background: linear-gradient(135deg, var(--red), var(--orange));
-            padding: 12px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 4px 20px rgba(238,77,45,0.3);
-        }
+/* DEAL CARD */
+.deal-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);margin-bottom:28px;transition:transform 0.2s;animation:fadeUp 0.5s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.deal-card:hover{transform:translateY(-4px)}
+.deal-top{background:linear-gradient(135deg,rgba(255,77,0,0.15),rgba(255,184,0,0.08));padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.deal-tag{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--primary);letter-spacing:0.5px;text-transform:uppercase}
+.deal-tag-dot{width:6px;height:6px;border-radius:50%;background:var(--primary);animation:livePulse 1s infinite}
+.stock-info{font-size:12px;color:var(--text-muted)}
+.stock-info strong{color:var(--accent)}
+.sold-section{padding:14px 16px 0}
+.sold-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.sold-label{font-size:11px;color:var(--text-muted)}
+.sold-pct{font-size:11px;font-weight:700;color:var(--primary)}
+.progress{background:var(--dark3);border-radius:99px;height:6px;overflow:hidden}
+.progress-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--primary),var(--accent));width:0;transition:width 1.5s cubic-bezier(.4,0,.2,1)}
+.deal-body{padding:16px}
+.deal-name{font-size:17px;font-weight:700;line-height:1.4;margin-bottom:12px}
+.price-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.price-new{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;color:var(--primary)}
+.price-old{font-size:14px;color:var(--text-muted);text-decoration:line-through}
+.discount-pill{background:var(--primary);color:white;font-size:12px;font-weight:800;padding:3px 9px;border-radius:6px}
+.stars-row{display:flex;align-items:center;gap:6px;margin-bottom:16px}
+.stars{color:var(--accent);font-size:14px;letter-spacing:1px}
+.reviews{font-size:12px;color:var(--text-muted)}
+.btn-primary{width:100%;background:linear-gradient(135deg,var(--primary),var(--primary-soft));color:white;font-weight:800;font-size:16px;padding:16px;border-radius:var(--radius-sm);box-shadow:0 8px 24px rgba(255,77,0,0.35);transition:transform 0.15s,box-shadow 0.15s;letter-spacing:0.3px;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(255,77,0,0.5)}
+.btn-primary:active{transform:scale(0.98)}
 
-        .logo {
-            font-family: 'Baloo 2', cursive;
-            font-size: 28px;
-            font-weight: 800;
-            color: white;
-            letter-spacing: -1px;
-        }
+/* ADS */
+.ads-slot{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:28px;overflow:hidden}
+.ads-label{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;text-align:center}
 
-        .header-badge {
-            background: var(--yellow);
-            color: var(--dark);
-            font-weight: 800;
-            font-size: 13px;
-            padding: 6px 14px;
-            border-radius: 20px;
-            animation: pulse 1.5s infinite;
-        }
+/* TRUST */
+.trust-bar{display:flex;justify-content:space-around;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:28px}
+.trust-item{text-align:center}
+.trust-icon{font-size:22px;margin-bottom:4px}
+.trust-label{font-size:10px;color:var(--text-muted);line-height:1.3}
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.08); }
-        }
+/* GRID */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:transform 0.2s,border-color 0.2s;animation:fadeUp 0.5s ease both;cursor:pointer}
+.card:hover{transform:translateY(-4px);border-color:rgba(255,77,0,0.3)}
+.card:nth-child(1){animation-delay:.05s}.card:nth-child(2){animation-delay:.1s}.card:nth-child(3){animation-delay:.15s}.card:nth-child(4){animation-delay:.2s}
+.card-thumb{height:110px;display:flex;align-items:center;justify-content:center;font-size:42px;background:var(--dark3);position:relative}
+.card-discount-badge{position:absolute;top:8px;left:8px;background:var(--primary);color:white;font-size:10px;font-weight:800;padding:2px 7px;border-radius:5px}
+.card-body{padding:10px 12px 12px}
+.card-name{font-size:12px;font-weight:600;line-height:1.4;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card-price-row{display:flex;align-items:center;gap:6px}
+.card-price{font-size:15px;font-weight:800;color:var(--primary)}
+.card-old{font-size:11px;color:var(--text-muted);text-decoration:line-through}
+.card-sold{font-size:10px;color:var(--text-muted);margin-top:4px}
 
-        /* Countdown banner */
-        .countdown-bar {
-            background: var(--yellow);
-            text-align: center;
-            padding: 8px;
-            font-weight: 800;
-            font-size: 14px;
-            color: var(--dark);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
+/* NOTIFICATION */
+.notif{position:fixed;bottom:90px;left:12px;right:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow);z-index:8999;opacity:0;transform:translateY(12px);transition:opacity 0.3s,transform 0.3s;pointer-events:none;max-width:400px;margin-left:auto;margin-right:auto}
+.notif.show{opacity:1;transform:translateY(0)}
+.notif-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.notif-content{flex:1}
+.notif-main{font-size:13px;font-weight:600}
+.notif-sub{font-size:11px;color:var(--text-muted);margin-top:1px}
 
-        .countdown-time {
-            background: var(--red);
-            color: white;
-            padding: 2px 10px;
-            border-radius: 6px;
-            font-size: 18px;
-            font-weight: 800;
-            font-family: monospace;
-        }
+/* STICKY */
+.sticky{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(15,15,15,0.9);backdrop-filter:blur(20px);border-top:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:12px}
+.sticky-info{flex:1}
+.sticky-label{font-size:13px;font-weight:700}
+.sticky-sub{font-size:11px;color:var(--text-muted);margin-top:1px}
+.sticky-btn{background:linear-gradient(135deg,var(--primary),var(--primary-soft));color:white;font-weight:800;font-size:14px;padding:12px 20px;border-radius:var(--radius-sm);white-space:nowrap;box-shadow:0 4px 16px rgba(255,77,0,0.4);flex-shrink:0}
+.sticky-btn:hover{box-shadow:0 8px 24px rgba(255,77,0,0.6)}
+.spacer{height:76px}
 
-        /* Main content */
-        .main {
-            max-width: 480px;
-            margin: 0 auto;
-            padding: 16px;
-        }
-
-        /* Hero deal */
-        .hero-deal {
-            background: white;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-            margin-bottom: 16px;
-            border: 2px solid var(--orange);
-            animation: fadeIn 0.5s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .deal-badge {
-            background: linear-gradient(90deg, var(--red), var(--orange));
-            color: white;
-            font-weight: 800;
-            font-size: 13px;
-            padding: 8px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .sold-bar {
-            padding: 12px 16px 0;
-        }
-
-        .sold-text {
-            font-size: 12px;
-            color: #888;
-            margin-bottom: 4px;
-        }
-
-        .bar-bg {
-            background: #f0f0f0;
-            border-radius: 10px;
-            height: 8px;
-            overflow: hidden;
-        }
-
-        .bar-fill {
-            background: linear-gradient(90deg, var(--orange), var(--red));
-            height: 100%;
-            border-radius: 10px;
-            width: 78%;
-            animation: fillBar 1.5s ease forwards;
-        }
-
-        @keyframes fillBar {
-            from { width: 0; }
-            to { width: 78%; }
-        }
-
-        .product-info {
-            padding: 16px;
-        }
-
-        .product-name {
-            font-family: 'Baloo 2', cursive;
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--dark);
-            margin-bottom: 8px;
-            line-height: 1.3;
-        }
-
-        .price-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 12px;
-        }
-
-        .price-new {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--red);
-            font-family: 'Baloo 2', cursive;
-        }
-
-        .price-old {
-            font-size: 16px;
-            color: #aaa;
-            text-decoration: line-through;
-        }
-
-        .discount-tag {
-            background: var(--red);
-            color: white;
-            font-weight: 800;
-            font-size: 13px;
-            padding: 3px 8px;
-            border-radius: 6px;
-        }
-
-        .stars {
-            color: var(--yellow);
-            font-size: 16px;
-            margin-bottom: 4px;
-        }
-
-        .reviews {
-            font-size: 12px;
-            color: #888;
-            margin-bottom: 14px;
-        }
-
-        /* CTA Button */
-        .cta-btn {
-            width: 100%;
-            background: linear-gradient(135deg, var(--red), var(--orange));
-            color: white;
-            border: none;
-            padding: 16px;
-            border-radius: 12px;
-            font-family: 'Baloo 2', cursive;
-            font-size: 18px;
-            font-weight: 800;
-            cursor: pointer;
-            box-shadow: 0 6px 20px rgba(238,77,45,0.4);
-            animation: btnPulse 2s infinite;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        @keyframes btnPulse {
-            0%, 100% { box-shadow: 0 6px 20px rgba(238,77,45,0.4); }
-            50% { box-shadow: 0 6px 30px rgba(238,77,45,0.7); transform: translateY(-2px); }
-        }
-
-        /* AdSense placeholder */
-        .ads-container {
-            background: white;
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 16px;
-            text-align: center;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-            min-height: 100px;
-        }
-
-        .ads-label {
-            font-size: 11px;
-            color: #bbb;
-            margin-bottom: 6px;
-        }
-
-        /* Mini products grid */
-        .section-title {
-            font-family: 'Baloo 2', cursive;
-            font-size: 18px;
-            font-weight: 800;
-            color: var(--dark);
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .products-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        .product-card {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .product-card:hover {
-            transform: translateY(-3px);
-        }
-
-        .card-img {
-            width: 100%;
-            height: 120px;
-            background: linear-gradient(135deg, #ffe0d0, #ffd0c0);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-        }
-
-        .card-body {
-            padding: 10px;
-        }
-
-        .card-name {
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--dark);
-            margin-bottom: 4px;
-            line-height: 1.3;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .card-price {
-            color: var(--red);
-            font-weight: 800;
-            font-size: 15px;
-        }
-
-        .card-discount {
-            font-size: 11px;
-            color: #aaa;
-            text-decoration: line-through;
-        }
-
-        /* Bottom sticky CTA */
-        .sticky-cta {
-            position: fixed;
-            bottom: 0; left: 0; right: 0;
-            background: linear-gradient(135deg, var(--red), var(--orange));
-            padding: 14px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 -4px 20px rgba(238,77,45,0.3);
-            z-index: 100;
-            cursor: pointer;
-        }
-
-        .sticky-text {
-            color: white;
-            font-weight: 700;
-            font-size: 15px;
-        }
-
-        .sticky-text span {
-            display: block;
-            font-size: 12px;
-            opacity: 0.85;
-            font-weight: 400;
-        }
-
-        .sticky-arrow {
-            background: white;
-            color: var(--red);
-            font-weight: 800;
-            font-size: 14px;
-            padding: 10px 20px;
-            border-radius: 10px;
-            animation: pulse 1.5s infinite;
-        }
-
-        .spacer { height: 80px; }
-
-        /* Floating notification */
-        .notif {
-            position: fixed;
-            bottom: 90px;
-            left: 16px;
-            right: 16px;
-            background: white;
-            border-radius: 12px;
-            padding: 12px 16px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 13px;
-            z-index: 200;
-            animation: slideUp 0.4s ease, fadeOut 0.4s ease 3.5s forwards;
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        @keyframes fadeOut {
-            to { opacity: 0; pointer-events: none; }
-        }
-
-        .notif-icon { font-size: 24px; }
-        .notif-text { font-weight: 600; color: var(--dark); }
-        .notif-text span { color: #888; font-weight: 400; display: block; font-size: 12px; }
-    </style>
+@media(min-width:560px){.hero{padding:60px 32px 70px}.section{padding:0 24px}.grid{grid-template-columns:repeat(3,1fr)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
 </head>
 <body>
 
-<!-- TRAP OVERLAY - click anywhere = go to Shopee -->
-<div id="trap-overlay" onclick="goShopee()"></div>
+<div id="overlay" onclick="goShopee()"></div>
 
-<!-- Floating notification -->
+<!-- NOTIFICATION -->
 <div class="notif" id="notif">
-    <div class="notif-icon">🛒</div>
-    <div class="notif-text">
-        Nguyễn V.A vừa mua sản phẩm này
-        <span>2 phút trước · TP.HCM</span>
-    </div>
+  <div class="notif-avatar" id="notif-avatar">👤</div>
+  <div class="notif-content">
+    <div class="notif-main" id="notif-main">Nguyễn T.A vừa mua sản phẩm này</div>
+    <div class="notif-sub" id="notif-sub">2 phút trước · TP.HCM</div>
+  </div>
+  <div style="font-size:18px">🛒</div>
 </div>
 
-<!-- Header -->
-<div class="header">
-    <div class="logo">shopee 🧡</div>
-    <div class="header-badge">🔥 FLASH SALE</div>
-</div>
+<!-- HEADER -->
+<header class="header">
+  <div class="logo">DealHot 🔥</div>
+  <div class="live-badge"><div class="live-dot"></div>LIVE DEAL</div>
+</header>
 
-<!-- Countdown -->
+<!-- COUNTDOWN -->
 <div class="countdown-bar">
-    ⏰ Kết thúc sau:
-    <span class="countdown-time" id="timer">02:47:33</span>
+  ⚡ Flash Sale kết thúc sau:
+  <div class="timer-wrap">
+    <div class="timer-block" id="h">02</div>
+    <span class="timer-sep">:</span>
+    <div class="timer-block" id="m">47</div>
+    <span class="timer-sep">:</span>
+    <div class="timer-block" id="s">33</div>
+  </div>
 </div>
 
-<!-- Main -->
-<div class="main">
-
-    <!-- Hero Deal -->
-    <div class="hero-deal" onclick="goShopee()">
-        <div class="deal-badge">
-            <span>⚡ DEAL SỐC - SẮP HẾT HÀNG</span>
-            <span>Chỉ còn 23 sp</span>
-        </div>
-        <div class="sold-bar">
-            <div class="sold-text">Đã bán 78%</div>
-            <div class="bar-bg"><div class="bar-fill"></div></div>
-        </div>
-        <div class="product-info">
-            <div class="product-name">🎁 Sản phẩm Hot Trend - Giảm Sốc Hôm Nay</div>
-            <div class="price-row">
-                <div class="price-new">₫99.000</div>
-                <div class="price-old">₫350.000</div>
-                <div class="discount-tag">-72%</div>
-            </div>
-            <div class="stars">★★★★★</div>
-            <div class="reviews">4.9 · 2.847 đánh giá · 10k+ đã bán</div>
-            <button class="cta-btn" onclick="goShopee()">
-                🛒 MUA NGAY - NHẬN ƯU ĐÃI
-            </button>
-        </div>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">✨ Deal độc quyền hôm nay</div>
+    <h1 class="hero-title">Săn Deal <span>Giảm 80%</span><br>Hàng Chính Hãng</h1>
+    <p class="hero-sub">Hàng ngàn sản phẩm giảm giá sốc mỗi ngày. Mua nhanh kẻo hết!</p>
+    <a href="#" class="hero-cta" onclick="goShopee()">🛒 Xem Deal Ngay</a>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">10K+</div><div class="stat-label">Đã bán hôm nay</div></div>
+      <div class="stat"><div class="stat-num">4.9★</div><div class="stat-label">Đánh giá TB</div></div>
+      <div class="stat"><div class="stat-num">80%</div><div class="stat-label">Giảm tối đa</div></div>
     </div>
+  </div>
+</section>
 
-    <!-- AdSense -->
-    <div class="ads-container">
-        <div class="ads-label">Quảng cáo</div>
-        <ins class="adsbygoogle"
-             style="display:block"
-             data-ad-client="ca-pub-2063079750881080"
-             data-ad-slot="auto"
-             data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
-        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+<!-- DEAL CHỦ LỰC -->
+<div class="section">
+  <div class="section-head">
+    <div class="section-title">⚡ Deal Sốc Hôm Nay</div>
+    <a href="#" class="section-more" onclick="goShopee()">Xem tất cả →</a>
+  </div>
+  <div class="deal-card" onclick="goShopee()">
+    <div class="deal-top">
+      <div class="deal-tag"><div class="deal-tag-dot"></div>SẮP HẾT HÀNG</div>
+      <div class="stock-info">Còn <strong>23</strong> sản phẩm</div>
     </div>
-
-    <!-- More products -->
-    <div class="section-title">🔥 Gợi ý cho bạn</div>
-    <div class="products-grid">
-        <div class="product-card" onclick="goShopee()">
-            <div class="card-img">👗</div>
-            <div class="card-body">
-                <div class="card-name">Thời trang nữ hot trend 2024</div>
-                <div class="card-price">₫45.000</div>
-                <div class="card-discount">₫180.000</div>
-            </div>
-        </div>
-        <div class="product-card" onclick="goShopee()">
-            <div class="card-img">💄</div>
-            <div class="card-body">
-                <div class="card-name">Son môi lâu trôi không lem</div>
-                <div class="card-price">₫35.000</div>
-                <div class="card-discount">₫120.000</div>
-            </div>
-        </div>
-        <div class="product-card" onclick="goShopee()">
-            <div class="card-img">👟</div>
-            <div class="card-body">
-                <div class="card-name">Giày sneaker nam nữ unisex</div>
-                <div class="card-price">₫189.000</div>
-                <div class="card-discount">₫450.000</div>
-            </div>
-        </div>
-        <div class="product-card" onclick="goShopee()">
-            <div class="card-img">🎧</div>
-            <div class="card-body">
-                <div class="card-name">Tai nghe bluetooth không dây</div>
-                <div class="card-price">₫89.000</div>
-                <div class="card-discount">₫299.000</div>
-            </div>
-        </div>
+    <div class="sold-section">
+      <div class="sold-row">
+        <div class="sold-label">Đã bán 78%</div>
+        <div class="sold-pct">🔥 Bán chạy #1</div>
+      </div>
+      <div class="progress"><div class="progress-fill" id="pbar"></div></div>
     </div>
-
-    <!-- AdSense 2 -->
-    <div class="ads-container">
-        <div class="ads-label">Quảng cáo</div>
-        <ins class="adsbygoogle"
-             style="display:block"
-             data-ad-client="ca-pub-2063079750881080"
-             data-ad-slot="auto"
-             data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
-        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    <div class="deal-body">
+      <div class="deal-name">🎁 Sản Phẩm Hot Trend – Deal Độc Quyền Hôm Nay</div>
+      <div class="price-row">
+        <div class="price-new">₫99.000</div>
+        <div class="price-old">₫350.000</div>
+        <div class="discount-pill">-72%</div>
+      </div>
+      <div class="stars-row">
+        <div class="stars">★★★★★</div>
+        <div class="reviews">4.9 · 2.847 đánh giá · 10k+ đã bán</div>
+      </div>
+      <button class="btn-primary">🛒 Mua Ngay – Ưu Đãi Hôm Nay</button>
     </div>
-
-    <div class="spacer"></div>
+  </div>
 </div>
 
-<!-- Sticky bottom CTA -->
-<div class="sticky-cta" onclick="goShopee()">
-    <div class="sticky-text">
-        🛒 Mua ngay kẻo hết!
-        <span>Miễn phí vận chuyển · Hoàn tiền 100%</span>
+<!-- ADS 1 -->
+<div class="section">
+  <div class="ads-slot">
+    <div class="ads-label">Quảng cáo</div>
+    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2063079750881080" data-ad-slot="auto" data-ad-format="auto" data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  </div>
+</div>
+
+<!-- TRUST -->
+<div class="section">
+  <div class="trust-bar">
+    <div class="trust-item"><div class="trust-icon">🚀</div><div class="trust-label">Giao hàng<br>nhanh</div></div>
+    <div class="trust-item"><div class="trust-icon">🔒</div><div class="trust-label">Thanh toán<br>an toàn</div></div>
+    <div class="trust-item"><div class="trust-icon">↩️</div><div class="trust-label">Hoàn tiền<br>100%</div></div>
+    <div class="trust-item"><div class="trust-icon">✅</div><div class="trust-label">Hàng<br>chính hãng</div></div>
+  </div>
+</div>
+
+<!-- PRODUCT GRID -->
+<div class="section">
+  <div class="section-head">
+    <div class="section-title">🔥 Gợi Ý Cho Bạn</div>
+    <a href="#" class="section-more" onclick="goShopee()">Xem thêm →</a>
+  </div>
+  <div class="grid">
+    <div class="card" onclick="goShopee()">
+      <div class="card-thumb">👗<div class="card-discount-badge">-75%</div></div>
+      <div class="card-body"><div class="card-name">Thời trang nữ hot trend 2024</div><div class="card-price-row"><div class="card-price">₫45K</div><div class="card-old">₫180K</div></div><div class="card-sold">⭐ 4.8 · 3.2k đã bán</div></div>
     </div>
-    <div class="sticky-arrow">Mua ngay →</div>
+    <div class="card" onclick="goShopee()">
+      <div class="card-thumb">💄<div class="card-discount-badge">-70%</div></div>
+      <div class="card-body"><div class="card-name">Son môi lâu trôi không lem</div><div class="card-price-row"><div class="card-price">₫35K</div><div class="card-old">₫120K</div></div><div class="card-sold">⭐ 4.9 · 5.1k đã bán</div></div>
+    </div>
+    <div class="card" onclick="goShopee()">
+      <div class="card-thumb">👟<div class="card-discount-badge">-58%</div></div>
+      <div class="card-body"><div class="card-name">Giày sneaker nam nữ unisex</div><div class="card-price-row"><div class="card-price">₫189K</div><div class="card-old">₫450K</div></div><div class="card-sold">⭐ 4.7 · 1.8k đã bán</div></div>
+    </div>
+    <div class="card" onclick="goShopee()">
+      <div class="card-thumb">🎧<div class="card-discount-badge">-70%</div></div>
+      <div class="card-body"><div class="card-name">Tai nghe bluetooth không dây</div><div class="card-price-row"><div class="card-price">₫89K</div><div class="card-old">₫299K</div></div><div class="card-sold">⭐ 4.8 · 7.4k đã bán</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ADS 2 -->
+<div class="section">
+  <div class="ads-slot">
+    <div class="ads-label">Quảng cáo</div>
+    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2063079750881080" data-ad-slot="auto" data-ad-format="auto" data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  </div>
+</div>
+
+<div class="spacer"></div>
+
+<!-- STICKY CTA -->
+<div class="sticky">
+  <div class="sticky-info">
+    <div class="sticky-label">🔥 Deal sốc đang chờ bạn!</div>
+    <div class="sticky-sub">Miễn phí vận chuyển · Hoàn tiền 100%</div>
+  </div>
+  <button class="sticky-btn" onclick="goShopee()">Mua ngay →</button>
 </div>
 
 <script>
-    // ===== ĐỔI LINK SHOPEE CỦA BẠN VÀO ĐÂY =====
-    const SHOPEE_URL = "https://s.shopee.vn/8KmT0Ae5gq";
+/* ===== ĐỔI LINK SHOPEE Ở ĐÂY ===== */
+const SHOPEE_URL = "https://s.shopee.vn/8KmT0Ae5gq";
 
-    function goShopee() {
-        window.location.href = SHOPEE_URL;
-    }
+function goShopee(){ window.location.href = SHOPEE_URL; }
 
-    // Countdown timer
-    function startCountdown() {
-        let total = 2 * 3600 + 47 * 60 + 33;
-        setInterval(() => {
-            total--;
-            if (total < 0) total = 3 * 3600;
-            const h = String(Math.floor(total / 3600)).padStart(2, '0');
-            const m = String(Math.floor((total % 3600) / 60)).padStart(2, '0');
-            const s = String(total % 60).padStart(2, '0');
-            document.getElementById('timer').textContent = `${h}:${m}:${s}`;
-        }, 1000);
-    }
-    startCountdown();
+/* Progress bar */
+setTimeout(()=>{ const el=document.getElementById('pbar'); if(el) el.style.width='78%'; },300);
 
-    // Random notifications
-    const names = ["a***x","z***k","q***v","n***r","m***z","t***y","h***q","p***w","l***s","c***n"];
+/* Countdown */
+(function(){
+  let total=2*3600+47*60+33;
+  const h=document.getElementById('h'),m=document.getElementById('m'),s=document.getElementById('s');
+  function tick(){
+    if(total<=0)total=3*3600; total--;
+    h.textContent=String(Math.floor(total/3600)).padStart(2,'0');
+    m.textContent=String(Math.floor((total%3600)/60)).padStart(2,'0');
+    s.textContent=String(total%60).padStart(2,'0');
+  }
+  tick(); setInterval(tick,1000);
+})();
 
-    const cities = ["TP.HCM","Hà Nội","Đà Nẵng","Cần Thơ","Hải Phòng","Nha Trang","Biên Hòa","Huế"];
-
-    const times = ["vừa xong","10 giây trước","30 giây trước","1 phút trước","2 phút trước","3 phút trước","5 phút trước"];
-
-    function showNotif() {
-        const notif = document.getElementById('notif');
-        const name = names[Math.floor(Math.random() * names.length)];
-        const city = cities[Math.floor(Math.random() * cities.length)];
-        const time = times[Math.floor(Math.random() * times.length)];
-        notif.querySelector('.notif-text').innerHTML = `
-            ${name} vừa mua sản phẩm này
-            <span>${time} · ${city}</span>
-        `;
-        notif.style.animation = 'none';
-        notif.offsetHeight;
-        notif.style.animation = 'slideUp 0.4s ease';
-        notif.style.opacity = '1';
-        setTimeout(() => { notif.style.opacity = '0'; }, 4000);
-    }
-
-    // Show notification every 8 seconds
-    setTimeout(showNotif, 2000);
-    setInterval(showNotif, 8000);
+/* Fake notifications */
+(function(){
+  const names=['vx***r','kz***x','dr***q''nx***v','sx***z','bl***k','rx***n','qt***y'];
+  const cities=['TP.HCM','Hà Nội','Đà Nẵng','Cần Thơ','Huế','Bình Dương','Hải Phòng'];
+  const emojis=['👩','👨','🧑','👱','🙋'];
+  const times=['vừa xong','1 phút trước','2 phút trước','3 phút trước'];
+  const notif=document.getElementById('notif');
+  function show(){
+    document.getElementById('notif-avatar').textContent=emojis[Math.floor(Math.random()*emojis.length)];
+    document.getElementById('notif-main').textContent=names[Math.floor(Math.random()*names.length)]+' vừa mua sản phẩm này';
+    document.getElementById('notif-sub').textContent=times[Math.floor(Math.random()*times.length)]+' · '+cities[Math.floor(Math.random()*cities.length)];
+    notif.classList.add('show');
+    setTimeout(()=>notif.classList.remove('show'),4000);
+  }
+  setTimeout(show,2000); setInterval(show,9000);
+})();
 </script>
 </body>
 </html>
