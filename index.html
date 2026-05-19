@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔥 Deal Sốc Hôm Nay - Giảm Đến 80%</title>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2063079750881080"
+         crossorigin="anonymous"></script>
+
+    <style>
+        :root {
+            --orange: #FF6B00;
+            --red: #EE4D2D;
+            --yellow: #FFD600;
+            --bg: #fff7f0;
+            --dark: #1a1a1a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            cursor: pointer;
+            overflow-x: hidden;
+        }
+
+        /* Toàn bộ trang là 1 link ẩn */
+        #trap-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 9999;
+            cursor: pointer;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--red), var(--orange));
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 20px rgba(238,77,45,0.3);
+        }
+
+        .logo {
+            font-family: 'Baloo 2', cursive;
+            font-size: 28px;
+            font-weight: 800;
+            color: white;
+            letter-spacing: -1px;
+        }
+
+        .header-badge {
+            background: var(--yellow);
+            color: var(--dark);
+            font-weight: 800;
+            font-size: 13px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
+        /* Countdown banner */
+        .countdown-bar {
+            background: var(--yellow);
+            text-align: center;
+            padding: 8px;
+            font-weight: 800;
+            font-size: 14px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .countdown-time {
+            background: var(--red);
+            color: white;
+            padding: 2px 10px;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: 800;
+            font-family: monospace;
+        }
+
+        /* Main content */
+        .main {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        /* Hero deal */
+        .hero-deal {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            margin-bottom: 16px;
+            border: 2px solid var(--orange);
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .deal-badge {
+            background: linear-gradient(90deg, var(--red), var(--orange));
+            color: white;
+            font-weight: 800;
+            font-size: 13px;
+            padding: 8px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sold-bar {
+            padding: 12px 16px 0;
+        }
+
+        .sold-text {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 4px;
+        }
+
+        .bar-bg {
+            background: #f0f0f0;
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            background: linear-gradient(90deg, var(--orange), var(--red));
+            height: 100%;
+            border-radius: 10px;
+            width: 78%;
+            animation: fillBar 1.5s ease forwards;
+        }
+
+        @keyframes fillBar {
+            from { width: 0; }
+            to { width: 78%; }
+        }
+
+        .product-info {
+            padding: 16px;
+        }
+
+        .product-name {
+            font-family: 'Baloo 2', cursive;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .price-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .price-new {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--red);
+            font-family: 'Baloo 2', cursive;
+        }
+
+        .price-old {
+            font-size: 16px;
+            color: #aaa;
+            text-decoration: line-through;
+        }
+
+        .discount-tag {
+            background: var(--red);
+            color: white;
+            font-weight: 800;
+            font-size: 13px;
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+
+        .stars {
+            color: var(--yellow);
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .reviews {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 14px;
+        }
+
+        /* CTA Button */
+        .cta-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--red), var(--orange));
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-family: 'Baloo 2', cursive;
+            font-size: 18px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(238,77,45,0.4);
+            animation: btnPulse 2s infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        @keyframes btnPulse {
+            0%, 100% { box-shadow: 0 6px 20px rgba(238,77,45,0.4); }
+            50% { box-shadow: 0 6px 30px rgba(238,77,45,0.7); transform: translateY(-2px); }
+        }
+
+        /* AdSense placeholder */
+        .ads-container {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 16px;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            min-height: 100px;
+        }
+
+        .ads-label {
+            font-size: 11px;
+            color: #bbb;
+            margin-bottom: 6px;
+        }
+
+        /* Mini products grid */
+        .section-title {
+            font-family: 'Baloo 2', cursive;
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .card-img {
+            width: 100%;
+            height: 120px;
+            background: linear-gradient(135deg, #ffe0d0, #ffd0c0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        .card-body {
+            padding: 10px;
+        }
+
+        .card-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 4px;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-price {
+            color: var(--red);
+            font-weight: 800;
+            font-size: 15px;
+        }
+
+        .card-discount {
+            font-size: 11px;
+            color: #aaa;
+            text-decoration: line-through;
+        }
+
+        /* Bottom sticky CTA */
+        .sticky-cta {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: linear-gradient(135deg, var(--red), var(--orange));
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 -4px 20px rgba(238,77,45,0.3);
+            z-index: 100;
+            cursor: pointer;
+        }
+
+        .sticky-text {
+            color: white;
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .sticky-text span {
+            display: block;
+            font-size: 12px;
+            opacity: 0.85;
+            font-weight: 400;
+        }
+
+        .sticky-arrow {
+            background: white;
+            color: var(--red);
+            font-weight: 800;
+            font-size: 14px;
+            padding: 10px 20px;
+            border-radius: 10px;
+            animation: pulse 1.5s infinite;
+        }
+
+        .spacer { height: 80px; }
+
+        /* Floating notification */
+        .notif {
+            position: fixed;
+            bottom: 90px;
+            left: 16px;
+            right: 16px;
+            background: white;
+            border-radius: 12px;
+            padding: 12px 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            z-index: 200;
+            animation: slideUp 0.4s ease, fadeOut 0.4s ease 3.5s forwards;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; pointer-events: none; }
+        }
+
+        .notif-icon { font-size: 24px; }
+        .notif-text { font-weight: 600; color: var(--dark); }
+        .notif-text span { color: #888; font-weight: 400; display: block; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+<!-- TRAP OVERLAY - click anywhere = go to Shopee -->
+<div id="trap-overlay" onclick="goShopee()"></div>
+
+<!-- Floating notification -->
+<div class="notif" id="notif">
+    <div class="notif-icon">🛒</div>
+    <div class="notif-text">
+        Nguyễn V.A vừa mua sản phẩm này
+        <span>2 phút trước · TP.HCM</span>
+    </div>
+</div>
+
+<!-- Header -->
+<div class="header">
+    <div class="logo">shopee 🧡</div>
+    <div class="header-badge">🔥 FLASH SALE</div>
+</div>
+
+<!-- Countdown -->
+<div class="countdown-bar">
+    ⏰ Kết thúc sau:
+    <span class="countdown-time" id="timer">02:47:33</span>
+</div>
+
+<!-- Main -->
+<div class="main">
+
+    <!-- Hero Deal -->
+    <div class="hero-deal" onclick="goShopee()">
+        <div class="deal-badge">
+            <span>⚡ DEAL SỐC - SẮP HẾT HÀNG</span>
+            <span>Chỉ còn 23 sp</span>
+        </div>
+        <div class="sold-bar">
+            <div class="sold-text">Đã bán 78%</div>
+            <div class="bar-bg"><div class="bar-fill"></div></div>
+        </div>
+        <div class="product-info">
+            <div class="product-name">🎁 Sản phẩm Hot Trend - Giảm Sốc Hôm Nay</div>
+            <div class="price-row">
+                <div class="price-new">₫99.000</div>
+                <div class="price-old">₫350.000</div>
+                <div class="discount-tag">-72%</div>
+            </div>
+            <div class="stars">★★★★★</div>
+            <div class="reviews">4.9 · 2.847 đánh giá · 10k+ đã bán</div>
+            <button class="cta-btn" onclick="goShopee()">
+                🛒 MUA NGAY - NHẬN ƯU ĐÃI
+            </button>
+        </div>
+    </div>
+
+    <!-- AdSense -->
+    <div class="ads-container">
+        <div class="ads-label">Quảng cáo</div>
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-2063079750881080"
+             data-ad-slot="auto"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+
+    <!-- More products -->
+    <div class="section-title">🔥 Gợi ý cho bạn</div>
+    <div class="products-grid">
+        <div class="product-card" onclick="goShopee()">
+            <div class="card-img">👗</div>
+            <div class="card-body">
+                <div class="card-name">Thời trang nữ hot trend 2024</div>
+                <div class="card-price">₫45.000</div>
+                <div class="card-discount">₫180.000</div>
+            </div>
+        </div>
+        <div class="product-card" onclick="goShopee()">
+            <div class="card-img">💄</div>
+            <div class="card-body">
+                <div class="card-name">Son môi lâu trôi không lem</div>
+                <div class="card-price">₫35.000</div>
+                <div class="card-discount">₫120.000</div>
+            </div>
+        </div>
+        <div class="product-card" onclick="goShopee()">
+            <div class="card-img">👟</div>
+            <div class="card-body">
+                <div class="card-name">Giày sneaker nam nữ unisex</div>
+                <div class="card-price">₫189.000</div>
+                <div class="card-discount">₫450.000</div>
+            </div>
+        </div>
+        <div class="product-card" onclick="goShopee()">
+            <div class="card-img">🎧</div>
+            <div class="card-body">
+                <div class="card-name">Tai nghe bluetooth không dây</div>
+                <div class="card-price">₫89.000</div>
+                <div class="card-discount">₫299.000</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AdSense 2 -->
+    <div class="ads-container">
+        <div class="ads-label">Quảng cáo</div>
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-2063079750881080"
+             data-ad-slot="auto"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+
+    <div class="spacer"></div>
+</div>
+
+<!-- Sticky bottom CTA -->
+<div class="sticky-cta" onclick="goShopee()">
+    <div class="sticky-text">
+        🛒 Mua ngay kẻo hết!
+        <span>Miễn phí vận chuyển · Hoàn tiền 100%</span>
+    </div>
+    <div class="sticky-arrow">Mua ngay →</div>
+</div>
+
+<script>
+    // ===== ĐỔI LINK SHOPEE CỦA BẠN VÀO ĐÂY =====
+    const SHOPEE_URL = "https://s.shopee.vn/8KmT0Ae5gq";
+
+    function goShopee() {
+        window.location.href = SHOPEE_URL;
+    }
+
+    // Countdown timer
+    function startCountdown() {
+        let total = 2 * 3600 + 47 * 60 + 33;
+        setInterval(() => {
+            total--;
+            if (total < 0) total = 3 * 3600;
+            const h = String(Math.floor(total / 3600)).padStart(2, '0');
+            const m = String(Math.floor((total % 3600) / 60)).padStart(2, '0');
+            const s = String(total % 60).padStart(2, '0');
+            document.getElementById('timer').textContent = `${h}:${m}:${s}`;
+        }, 1000);
+    }
+    startCountdown();
+
+    // Random notifications
+    const names = ["Trần M.H", "Lê T.B", "Phạm Q.A", "Nguyễn V.C", "Hoàng T.N"];
+    const cities = ["TP.HCM", "Hà Nội", "Đà Nẵng", "Cần Thơ", "Huế"];
+    const times = ["vừa xong", "1 phút trước", "2 phút trước", "3 phút trước"];
+
+    function showNotif() {
+        const notif = document.getElementById('notif');
+        const name = names[Math.floor(Math.random() * names.length)];
+        const city = cities[Math.floor(Math.random() * cities.length)];
+        const time = times[Math.floor(Math.random() * times.length)];
+        notif.querySelector('.notif-text').innerHTML = `
+            ${name} vừa mua sản phẩm này
+            <span>${time} · ${city}</span>
+        `;
+        notif.style.animation = 'none';
+        notif.offsetHeight;
+        notif.style.animation = 'slideUp 0.4s ease';
+        notif.style.opacity = '1';
+        setTimeout(() => { notif.style.opacity = '0'; }, 4000);
+    }
+
+    // Show notification every 8 seconds
+    setTimeout(showNotif, 2000);
+    setInterval(showNotif, 8000);
+</script>
+</body>
+</html>
