@@ -27,7 +27,7 @@ class WebHandler(BaseHTTPRequestHandler):
             base_dir = os.path.dirname(os.path.abspath(__file__))
             html_path = os.path.join(base_dir, "index.html")
             with open(html_path, "r", encoding="utf-8") as f:
-                content = f.read()
+                content = f.read()  
 
             # Inject SHOPEE_URL vào meta tag
             content = content.replace(
