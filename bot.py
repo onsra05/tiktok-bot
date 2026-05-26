@@ -57,6 +57,15 @@ def run_web_server():
 
 # ---------------- DOWNLOAD TIKTOK ----------------
 def download_sync(url: str, output_path: str):
+    import subprocess
+    
+    # Kiểm tra ffmpeg
+    try:
+        result = subprocess.run(['ffmpeg', '-version'], capture_output=True)
+        print("✅ ffmpeg available:", result.returncode == 0)
+    except Exception as e:
+        print("❌ ffmpeg not found:", e)
+
     ydl_opts = {
         'outtmpl': output_path,
         'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best',
@@ -65,12 +74,15 @@ def download_sync(url: str, output_path: str):
             'key': 'FFmpegVideoConvertor',
             'preferedformat': 'mp4',
         }],
-        'quiet': True,
+        'ffmpeg_location': '/usr/bin/ffmpeg',
+        'quiet': False,  # Bật log để debug
+        'verbose': True,
         'noplaylist': True,
         'http_headers': {'User-Agent': 'Mozilla/5.0'}
     }
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         ydl.download([url])
+
 
 
 async def download_tiktok_video(url: str) -> str:
