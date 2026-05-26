@@ -59,13 +59,19 @@ def run_web_server():
 def download_sync(url: str, output_path: str):
     ydl_opts = {
         'outtmpl': output_path,
-        'format': 'mp4',
+        'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best',
+        'merge_output_format': 'mp4',
+        'postprocessors': [{
+            'key': 'FFmpegVideoConvertor',
+            'preferedformat': 'mp4',
+        }],
         'quiet': True,
         'noplaylist': True,
         'http_headers': {'User-Agent': 'Mozilla/5.0'}
     }
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         ydl.download([url])
+
 
 async def download_tiktok_video(url: str) -> str:
     output_path = os.path.join(DOWNLOAD_DIR, "video.mp4")
