@@ -2,5 +2,5 @@ services:
   - type: web
     name: tiktok-bot
     env: python
-    buildCommand: pip install -r requirements.txt
+    buildCommand: apt-get install -y ffmpeg && pip install -r requirements.txt
     startCommand: python bot.py
