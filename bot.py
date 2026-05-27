@@ -57,31 +57,62 @@ def run_web_server():
 
 # ---------------- DOWNLOAD TIKTOK ----------------
 def download_sync(url: str, output_path: str):
+    import requests as req
     import subprocess
-    
-    # Kiểm tra ffmpeg
-    try:
-        result = subprocess.run(['ffmpeg', '-version'], capture_output=True)
-        print("✅ ffmpeg available:", result.returncode == 0)
-    except Exception as e:
-        print("❌ ffmpeg not found:", e)
 
+    # Thử API tikwm trước (ổn định nhất, không cần cookie)
+    try:
+        print("🔍 Thử API tikwm...")
+        api_resp = req.post(
+            "https://www.tikwm.com/api/",
+            data={"url": url, "hd": 1},
+            timeout=30
+        )
+        data = api_resp.json()
+        video_url = (
+            data.get("data", {}).get("hdplay") or
+            data.get("data", {}).get("play")
+        )
+        if video_url:
+            print("✅ tikwm OK, downloading...")
+            r = req.get(video_url, stream=True, timeout=60, headers={
+                "User-Agent": "Mozilla/5.0",
+                "Referer": "https://www.tiktok.com/"
+            })
+            with open(output_path, "wb") as f:
+                for chunk in r.iter_content(chunk_size=8192):
+                    f.write(chunk)
+            print("✅ Download xong từ tikwm")
+            return
+        else:
+            print("⚠️ tikwm không có URL, thử yt-dlp...")
+    except Exception as e:
+        print(f"⚠️ tikwm lỗi: {e}, thử yt-dlp...")
+
+    # Fallback: yt-dlp với user-agent giả mobile
+    import yt_dlp as ytdl
     ydl_opts = {
         'outtmpl': output_path,
         'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best',
         'merge_output_format': 'mp4',
-        'postprocessors': [{
-            'key': 'FFmpegVideoConvertor',
-            'preferedformat': 'mp4',
-        }],
+        'postprocessors': [{'key': 'FFmpegVideoConvertor', 'preferedformat': 'mp4'}],
         'ffmpeg_location': '/usr/bin/ffmpeg',
-        'quiet': False,  # Bật log để debug
-        'verbose': True,
+        'quiet': True,
         'noplaylist': True,
-        'http_headers': {'User-Agent': 'Mozilla/5.0'}
+        'http_headers': {
+            'User-Agent': 'com.zhiliaoapp.musically/2022600030 (Linux; U; Android 11; en_US; Pixel 4; Build/RQ3A.210805.001.A1; Cronet/58.0.2991.0)',
+            'Referer': 'https://www.tiktok.com/',
+        },
+        'extractor_args': {
+            'tiktok': {
+                'webpage_download': True,
+                'api_hostname': 'api22-normal-c-useast2a.tiktokv.com',
+            }
+        }
     }
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+    with ytdl.YoutubeDL(ydl_opts) as ydl:
         ydl.download([url])
+
 
 
 
