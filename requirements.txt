@@ -1,4 +1,7 @@
+httpx
 python-telegram-bot==21.3
 yt-dlp
-httpx
 requests
+psycopg2-binary
+apscheduler
+beautifulsoup4
