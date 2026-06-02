@@ -780,15 +780,19 @@ def main():
     app.add_handler(CallbackQueryHandler(button_handler))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
 
-    # Scheduler kiểm tra giá mỗi 15 phút
-    scheduler = AsyncIOScheduler()
-    scheduler.add_job(
-        check_prices,
-        'interval',
-        minutes=15,
-        args=[app]
-    )
-    scheduler.start()
+    # Scheduler chạy SAU KHI event loop đã start
+    async def start_scheduler(app):
+        scheduler = AsyncIOScheduler()
+        scheduler.add_job(
+            check_prices,
+            'interval',
+            minutes=15,
+            args=[app]
+        )
+        scheduler.start()
+        print("✅ Scheduler started!")
+
+    app.post_init = start_scheduler
 
     print("✅ Bot đang chạy...")
     app.run_polling()
