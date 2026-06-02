@@ -1,7 +1,4 @@
-httpx
-python-telegram-bot==21.3
-yt-dlp
-requests
-psycopg2-binary
-apscheduler
-beautifulsoup4
+aiogram==2.25.1
+SQLAlchemy==2.0.23
+aiosqlite==0.19.0
+python-dotenv==1.0.0
