@@ -6,7 +6,6 @@ import threading
 import asyncio
 from datetime import datetime, timedelta
 from http.server import HTTPServer, BaseHTTPRequestHandler
-from bs4 import BeautifulSoup
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -24,6 +23,7 @@ logger = logging.getLogger(__name__)
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 DATABASE_URL = os.environ.get("DATABASE_URL")
 SHOPEE_AFL_ID = os.environ.get("SHOPEE_AFL_ID")
+SCRAPER_API_KEY = os.environ.get("SCRAPER_API_KEY")
 FB_PAGE_TOKEN = os.environ.get("FB_PAGE_TOKEN")
 FB_PAGE_ID = os.environ.get("FB_PAGE_ID")
 SHOPEE_URL = os.environ.get("SHOPEE_URL", "https://shopee.vn")
@@ -139,70 +139,64 @@ def check_rate_limit(user_id: int, username: str) -> bool:
         logger.error(f"Rate limit error: {e}")
         return True
 
+# ============ SCRAPER API ============
+def scraper_get(url: str, params: dict = None) -> dict:
+    """Request qua ScraperAPI để bypass chặn IP"""
+    try:
+        query_string = ""
+        if params:
+            query_string = "?" + "&".join(f"{k}={v}" for k, v in params.items())
+
+        payload = {
+            "api_key": SCRAPER_API_KEY,
+            "url": url + query_string,
+            "country_code": "vn",
+            "render": "false"
+        }
+        resp = requests.get(
+            "https://api.scraperapi.com",
+            params=payload,
+            timeout=30
+        )
+        print(f"ScraperAPI [{url[:50]}] status: {resp.status_code}")
+        print(f"ScraperAPI response: {resp.text[:300]}")
+        return resp.json()
+    except Exception as e:
+        logger.error(f"ScraperAPI error: {e}")
+        return {}
+
 # ============ SHOPEE FUNCTIONS ============
 def make_affiliate_link(product_url: str) -> str:
     """Tạo link affiliate từ link sản phẩm Shopee"""
     try:
-        # Lấy item_id và shop_id từ URL
-        match = re.search(r'i\.(\d+)\.(\d+)', product_url)
+        match = re.search(r'product/(\d+)/(\d+)', product_url)
         if match:
             shop_id = match.group(1)
             item_id = match.group(2)
             return f"https://s.shopee.vn/redirect?aff_id={SHOPEE_AFL_ID}&url=https://shopee.vn/product/{shop_id}/{item_id}"
-        # Nếu không parse được → gắn trực tiếp
         sep = "&" if "?" in product_url else "?"
         return f"{product_url}{sep}aff_id={SHOPEE_AFL_ID}"
     except:
         return product_url
 
 def search_shopee(keyword: str) -> list:
-    """Tìm sản phẩm Shopee qua API"""
+    """Tìm sản phẩm Shopee qua ScraperAPI"""
     try:
-        # Thử API mới hơn
-        url = "https://shopee.vn/api/v4/search/search_items"
-        params = {
-            "by": "relevancy",
-            "keyword": keyword,
-            "limit": 5,
-            "newest": 0,
-            "order": "desc",
-            "page_type": "search",
-            "scenario": "PAGE_GLOBAL_SEARCH",
-            "version": 2,
-            "country": "VN",
-            "currency": "VND",
-            "match_id": 11036481,
-        }
-        headers = {
-            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15",
-            "Referer": f"https://shopee.vn/search?keyword={keyword}",
-            "X-API-SOURCE": "rweb",
-            "X-Shopee-Language": "vi",
-            "Accept": "application/json",
-            "af-ac-enc-dat": "null",
-        }
-        resp = requests.get(url, params=params, headers=headers, timeout=15)
-        print("Search status:", resp.status_code)
-        print("Search response:", resp.text[:500])
-        
-        data = resp.json()
-        items = data.get("items", [])
-
-        if not items:
-            # Thử API v2
-            url2 = "https://shopee.vn/api/v2/search_items/"
-            params2 = {
+        data = scraper_get(
+            "https://shopee.vn/api/v4/search/search_items",
+            params={
                 "by": "relevancy",
                 "keyword": keyword,
                 "limit": 5,
                 "newest": 0,
                 "order": "desc",
+                "page_type": "search",
+                "scenario": "PAGE_GLOBAL_SEARCH",
+                "version": 2,
             }
-            resp2 = requests.get(url2, params=params2, headers=headers, timeout=15)
-            print("Search v2 status:", resp2.status_code)
-            print("Search v2 response:", resp2.text[:500])
-            data = resp2.json()
-            items = data.get("items", [])
+        )
+        items = data.get("items", [])
+        print(f"Found {len(items)} items")
 
         results = []
         for item in items[:5]:
@@ -216,7 +210,7 @@ def search_shopee(keyword: str) -> list:
             rating = info.get("item_rating", {}).get("rating_star", 0)
             discount = info.get("discount", "")
 
-            if not name or not shop_id:
+            if not name:
                 continue
 
             product_url = f"https://shopee.vn/product/{shop_id}/{item_id}"
@@ -238,23 +232,24 @@ def search_shopee(keyword: str) -> list:
         return []
 
 def get_top_deals() -> list:
-    """Lấy top deals từ Shopee flash sale"""
+    """Lấy top flash sale từ Shopee"""
     try:
-        url = "https://shopee.vn/api/v2/flash_sale/get_all_sessions"
-        headers = {
-            "User-Agent": "Mozilla/5.0",
-            "Referer": "https://shopee.vn/",
-        }
-        resp = requests.get(url, headers=headers, timeout=10)
-        sessions = resp.json().get("data", {}).get("sessions", [])
+        data = scraper_get("https://shopee.vn/api/v2/flash_sale/get_all_sessions")
+        sessions = data.get("data", {}).get("sessions", [])
+
+        if not sessions:
+            data = scraper_get("https://shopee.vn/api/v4/flash_sale/get_all_sessions")
+            sessions = data.get("data", {}).get("sessions", [])
+
         if not sessions:
             return []
 
         session_id = sessions[0].get("promotionid")
-        items_url = f"https://shopee.vn/api/v2/flash_sale/get_items_by_promotionid"
-        params = {"promotionid": session_id, "limit": 5, "offset": 0}
-        items_resp = requests.get(items_url, params=params, headers=headers, timeout=10)
-        items = items_resp.json().get("data", {}).get("items", [])
+        items_data = scraper_get(
+            "https://shopee.vn/api/v2/flash_sale/get_items_by_promotionid",
+            params={"promotionid": session_id, "limit": 5, "offset": 0}
+        )
+        items = items_data.get("data", {}).get("items", [])
 
         results = []
         for item in items[:5]:
@@ -265,6 +260,9 @@ def get_top_deals() -> list:
             item_id = item.get("itemid", "")
             sold = item.get("flash_sale_stock", 0)
             discount = item.get("discount", "")
+
+            if not name:
+                continue
 
             product_url = f"https://shopee.vn/product/{shop_id}/{item_id}"
             afl_link = make_affiliate_link(product_url)
@@ -278,6 +276,7 @@ def get_top_deals() -> list:
                 "discount": discount
             })
         return results
+
     except Exception as e:
         logger.error(f"Deal error: {e}")
         return []
@@ -290,10 +289,10 @@ def get_product_price(product_url: str) -> float:
             return 0
         shop_id = match.group(1)
         item_id = match.group(2)
-        url = f"https://shopee.vn/api/v4/item/get?itemid={item_id}&shopid={shop_id}"
-        headers = {"User-Agent": "Mozilla/5.0", "Referer": "https://shopee.vn/"}
-        resp = requests.get(url, headers=headers, timeout=10)
-        data = resp.json()
+        data = scraper_get(
+            "https://shopee.vn/api/v4/item/get",
+            params={"itemid": item_id, "shopid": shop_id}
+        )
         price = data.get("data", {}).get("price", 0) / 100000
         return price
     except Exception as e:
@@ -305,25 +304,18 @@ def format_price(price: float) -> str:
 
 def format_product(p: dict, index: int = None) -> str:
     idx = f"{index}. " if index else ""
-    discount_text = f"🏷 Giảm {p['discount']}%" if p.get('discount') else ""
+    discount_text = f"🏷 -{p['discount']}%" if p.get('discount') else ""
     original = f"~~{format_price(p['original_price'])}~~" if p.get('original_price') and p['original_price'] > p['price'] else ""
     rating = f"⭐ {p.get('rating', 0)}" if p.get('rating') else ""
     sold = f"🛍 {p.get('sold', 0):,} đã bán" if p.get('sold') else ""
-
     return (
         f"{idx}🔥 *{p['name'][:60]}*\n"
-        f"💰 *{format_price(p['price'])}* {original}\n"
-        f"{discount_text} {rating} {sold}\n"
+        f"💰 *{format_price(p['price'])}* {original} {discount_text}\n"
+        f"{rating} {sold}\n\n"
     )
 
 # ============ TIKTOK FUNCTIONS ============
 def download_sync(url: str, output_path: str):
-    import subprocess
-    try:
-        subprocess.run(['ffmpeg', '-version'], capture_output=True)
-    except:
-        pass
-
     # Thử tikwm trước
     try:
         api_resp = requests.post(
@@ -344,6 +336,7 @@ def download_sync(url: str, output_path: str):
             with open(output_path, "wb") as f:
                 for chunk in r.iter_content(chunk_size=8192):
                     f.write(chunk)
+            logger.info("✅ Downloaded via tikwm")
             return
     except Exception as e:
         logger.error(f"tikwm error: {e}")
@@ -372,8 +365,8 @@ async def download_tiktok_video(url: str) -> str:
     await loop.run_in_executor(None, download_sync, url, output_path)
     return output_path
 
-def post_to_facebook(video_path: str, caption: str, shopee_url: str) -> bool:
-    full_caption = f"{caption}\n\n🛒 Mua ngay: {shopee_url}"
+def post_to_facebook(video_path: str, caption: str, shopee_link: str) -> bool:
+    full_caption = f"{caption}\n\n🛒 Mua ngay: {shopee_link}"
     upload_url = f"https://graph-video.facebook.com/v19.0/{FB_PAGE_ID}/videos"
     with open(video_path, "rb") as video_file:
         response = requests.post(
@@ -391,19 +384,14 @@ def format_size(size_bytes: int) -> str:
     return f"{size_bytes / (1024*1024):.1f} MB"
 
 # ============ TELEGRAM HANDLERS ============
-
-# --- ADMIN ONLY: TikTok ---
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     text = update.message.text.strip()
     waiting = context.user_data.get("waiting")
 
-    # Chỉ admin mới dùng được TikTok
-    if user_id != ADMIN_ID:
-        if "tiktok.com" in text:
-            await update.message.reply_text("❌ Tính năng này chỉ dành cho admin!")
-            return
-        await update.message.reply_text("👋 Dùng /search hoặc /deal để tìm sản phẩm Shopee!")
+    # Chỉ admin dùng TikTok
+    if "tiktok.com" in text and user_id != ADMIN_ID:
+        await update.message.reply_text("❌ Tính năng này chỉ dành cho admin!")
         return
 
     # Đang chờ caption FB
@@ -413,7 +401,7 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("🛒 Nhập link Shopee cho bài đăng FB:")
         return
 
-    # Đang chờ link Shopee để đăng FB
+    # Đang chờ link Shopee
     if waiting == "shopee_link":
         shopee_link = text
         caption = context.user_data.get("caption", "")
@@ -437,8 +425,8 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         context.user_data.clear()
         return
 
-    # Nhận link TikTok
-    if "tiktok.com" in text:
+    # Nhận link TikTok (chỉ admin)
+    if "tiktok.com" in text and user_id == ADMIN_ID:
         msg = await update.message.reply_text("⬇️ Đang tải video TikTok...")
         try:
             video_path = await download_tiktok_video(text)
@@ -473,11 +461,12 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     )
         except Exception as e:
             await msg.edit_text(f"❌ Lỗi: {str(e)}")
-            if os.path.exists(os.path.join(DOWNLOAD_DIR, "video.mp4")):
-                os.remove(os.path.join(DOWNLOAD_DIR, "video.mp4"))
+            tmp = os.path.join(DOWNLOAD_DIR, "video.mp4")
+            if os.path.exists(tmp):
+                os.remove(tmp)
         return
 
-    await update.message.reply_text("👋 Gửi /search <tên SP> hoặc /deal để xem deal!")
+    await update.message.reply_text("👋 Dùng /search hoặc /deal để tìm sản phẩm Shopee!")
 
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -495,25 +484,24 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_caption(caption="✏️ Nhập caption cho bài đăng Facebook:")
         context.user_data["waiting"] = "caption"
 
-# --- SHOPEE COMMANDS ---
+# ============ SHOPEE COMMANDS ============
 async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     name = update.effective_user.first_name
     is_admin = user_id == ADMIN_ID
-
-    admin_text = "\n🎬 Gửi link TikTok để tải video\n📤 Tải xong chọn đăng FB hoặc lưu về" if is_admin else ""
+    admin_text = "\n🎬 *Tính năng Admin:*\nGửi link TikTok để tải video + đăng FB" if is_admin else ""
 
     await update.message.reply_text(
-        f"👋 Chào *{name}*! Mình là DealBot 🛒\n\n"
+        f"👋 Chào *{name}*\\! Mình là DealBot 🛒\n\n"
         f"*Lệnh có thể dùng:*\n"
-        f"🔍 /search <tên sản phẩm> - Tìm sản phẩm\n"
-        f"🔥 /deal - Top deal flash sale hôm nay\n"
-        f"👁 /follow <link Shopee> - Theo dõi giá\n"
-        f"📋 /following - Xem danh sách đang theo dõi\n"
-        f"❌ /unfollow <số thứ tự> - Bỏ theo dõi\n"
+        f"🔍 /search \\<tên sản phẩm\\> \\- Tìm sản phẩm\n"
+        f"🔥 /deal \\- Top flash sale hôm nay\n"
+        f"👁 /follow \\<link Shopee\\> \\- Theo dõi giá\n"
+        f"📋 /following \\- Danh sách đang theo dõi\n"
+        f"❌ /unfollow \\<số thứ tự\\> \\- Bỏ theo dõi\n"
         f"{admin_text}\n\n"
         f"⚡ Giới hạn: 10 lệnh/phút",
-        parse_mode="Markdown"
+        parse_mode="MarkdownV2"
     )
 
 async def cmd_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -525,7 +513,10 @@ async def cmd_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     if not context.args:
-        await update.message.reply_text("❌ Cú pháp: /search <tên sản phẩm>\nVD: /search tai nghe bluetooth")
+        await update.message.reply_text(
+            "❌ Cú pháp: /search <tên sản phẩm>\n"
+            "VD: /search tai nghe bluetooth"
+        )
         return
 
     keyword = " ".join(context.args)
@@ -536,24 +527,23 @@ async def cmd_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
         results = await loop.run_in_executor(None, search_shopee, keyword)
 
         if not results:
-            await msg.edit_text("❌ Không tìm thấy sản phẩm nào!")
+            await msg.edit_text("❌ Không tìm thấy sản phẩm nào! Thử từ khóa khác.")
             return
 
-        text = f"🛒 *Kết quả tìm kiếm: {keyword}*\n\n"
+        text = f"🛒 *Kết quả: {keyword}*\n\n"
         keyboard = []
-
         for i, p in enumerate(results, 1):
             text += format_product(p, i)
             keyboard.append([InlineKeyboardButton(
-                f"🛒 {i}. {p['name'][:30]}... - {format_price(p['price'])}",
+                f"🛒 {i}. {p['name'][:25]}... {format_price(p['price'])}",
                 url=p['url']
             )])
 
-        text += "\n💡 Click vào nút bên dưới để mua ngay!"
+        text += "💡 Click nút bên dưới để mua ngay\\!"
         await msg.edit_text(text, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup(keyboard))
 
     except Exception as e:
-        logger.error(f"Search error: {e}")
+        logger.error(f"Search cmd error: {e}")
         await msg.edit_text("❌ Lỗi tìm kiếm, thử lại sau!")
 
 async def cmd_deal(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -576,7 +566,6 @@ async def cmd_deal(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         text = "⚡ *TOP FLASH SALE HÔM NAY* ⚡\n\n"
         keyboard = []
-
         for i, p in enumerate(deals, 1):
             text += format_product(p, i)
             keyboard.append([InlineKeyboardButton(
@@ -584,11 +573,11 @@ async def cmd_deal(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 url=p['url']
             )])
 
-        text += "\n🏃 Flash sale có hạn, mua nhanh kẻo hết!"
+        text += "🏃 Flash sale có hạn, mua nhanh kẻo hết!"
         await msg.edit_text(text, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup(keyboard))
 
     except Exception as e:
-        logger.error(f"Deal error: {e}")
+        logger.error(f"Deal cmd error: {e}")
         await msg.edit_text("❌ Lỗi lấy deal, thử lại sau!")
 
 async def cmd_follow(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -623,8 +612,6 @@ async def cmd_follow(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         conn = get_db()
         cur = conn.cursor()
-
-        # Kiểm tra đã follow chưa
         cur.execute(
             "SELECT id FROM followed_products WHERE user_id=%s AND product_url=%s",
             (user_id, product_url)
@@ -636,7 +623,7 @@ async def cmd_follow(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return
 
         cur.execute(
-            """INSERT INTO followed_products 
+            """INSERT INTO followed_products
                (user_id, product_url, product_name, last_price, last_notified)
                VALUES (%s, %s, %s, %s, %s)""",
             (user_id, product_url, "Sản phẩm Shopee", price, datetime.now())
@@ -681,12 +668,10 @@ async def cmd_following(update: Update, context: ContextTypes.DEFAULT_TYPE):
         text = "📋 *Danh sách đang theo dõi:*\n\n"
         for i, p in enumerate(products, 1):
             text += (
-                f"{i}. {p['product_name'][:40]}\n"
-                f"   💰 Giá hiện tại: {format_price(p['last_price'])}\n"
-                f"   🔗 {p['product_url'][:40]}...\n\n"
+                f"{i}. *{p['product_name'][:40]}*\n"
+                f"   💰 {format_price(p['last_price'])}\n\n"
             )
-        text += "❌ Dùng /unfollow <số thứ tự> để bỏ theo dõi"
-
+        text += "❌ Dùng /unfollow <số> để bỏ theo dõi"
         await update.message.reply_text(text, parse_mode="Markdown")
 
     except Exception as e:
@@ -712,7 +697,7 @@ async def cmd_unfollow(update: Update, context: ContextTypes.DEFAULT_TYPE):
         products = cur.fetchall()
 
         if index < 1 or index > len(products):
-            await update.message.reply_text(f"❌ Số thứ tự không hợp lệ! (1-{len(products)})")
+            await update.message.reply_text(f"❌ Số không hợp lệ! Chọn từ 1-{len(products)}")
             cur.close()
             conn.close()
             return
@@ -722,16 +707,14 @@ async def cmd_unfollow(update: Update, context: ContextTypes.DEFAULT_TYPE):
         conn.commit()
         cur.close()
         conn.close()
-
         await update.message.reply_text(f"✅ Đã bỏ theo dõi sản phẩm #{index}!")
 
     except Exception as e:
         logger.error(f"Unfollow error: {e}")
         await update.message.reply_text("❌ Lỗi, thử lại sau!")
 
-# ============ PRICE CHECK SCHEDULER ============
+# ============ PRICE SCHEDULER ============
 async def check_prices(app):
-    """Kiểm tra giá định kỳ và thông báo khi giảm"""
     logger.info("🔍 Checking prices...")
     try:
         conn = get_db()
@@ -747,18 +730,17 @@ async def check_prices(app):
                 if new_price <= 0:
                     continue
 
-                # Giá giảm → thông báo
                 if new_price < p['last_price']:
                     drop_pct = ((p['last_price'] - new_price) / p['last_price']) * 100
                     afl_link = make_affiliate_link(p['product_url'])
-
                     keyboard = [[InlineKeyboardButton("🛒 Mua ngay!", url=afl_link)]]
+
                     await app.bot.send_message(
                         chat_id=p['user_id'],
                         text=(
                             f"🔔 *GIÁ GIẢM!*\n\n"
                             f"📦 {p['product_name'][:50]}\n"
-                            f"💰 Giá cũ: ~~{format_price(p['last_price'])}~~\n"
+                            f"💰 Giá cũ: {format_price(p['last_price'])}\n"
                             f"🔥 Giá mới: *{format_price(new_price)}*\n"
                             f"📉 Giảm: *{drop_pct:.1f}%*\n\n"
                             f"⏰ Mua nhanh kẻo hết!"
@@ -767,7 +749,6 @@ async def check_prices(app):
                         reply_markup=InlineKeyboardMarkup(keyboard)
                     )
 
-                    # Cập nhật giá mới
                     conn = get_db()
                     cur = conn.cursor()
                     cur.execute(
@@ -779,27 +760,23 @@ async def check_prices(app):
                     conn.close()
 
             except Exception as e:
-                logger.error(f"Price check error for {p['product_url']}: {e}")
+                logger.error(f"Price check error: {e}")
 
     except Exception as e:
         logger.error(f"Scheduler error: {e}")
 
 # ============ MAIN ============
 def main():
-    # Web server
     t = threading.Thread(target=run_web_server)
     t.daemon = True
     t.start()
     print("✅ Web server started!")
 
-    # Init DB
     if DATABASE_URL:
         init_db()
 
-    # Bot
     app = Application.builder().token(BOT_TOKEN).build()
 
-    # Handlers
     app.add_handler(CommandHandler("start", cmd_start))
     app.add_handler(CommandHandler("search", cmd_search))
     app.add_handler(CommandHandler("deal", cmd_deal))
@@ -809,15 +786,9 @@ def main():
     app.add_handler(CallbackQueryHandler(button_handler))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
 
-    # Scheduler chạy SAU KHI event loop đã start
     async def start_scheduler(app):
         scheduler = AsyncIOScheduler()
-        scheduler.add_job(
-            check_prices,
-            'interval',
-            minutes=15,
-            args=[app]
-        )
+        scheduler.add_job(check_prices, 'interval', minutes=15, args=[app])
         scheduler.start()
         print("✅ Scheduler started!")
 
