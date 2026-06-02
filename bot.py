@@ -156,9 +156,10 @@ def make_affiliate_link(product_url: str) -> str:
         return product_url
 
 def search_shopee(keyword: str) -> list:
-    """Tìm sản phẩm Shopee qua API không chính thức"""
+    """Tìm sản phẩm Shopee qua API"""
     try:
-        url = f"https://shopee.vn/api/v4/search/search_items"
+        # Thử API mới hơn
+        url = "https://shopee.vn/api/v4/search/search_items"
         params = {
             "by": "relevancy",
             "keyword": keyword,
@@ -167,28 +168,56 @@ def search_shopee(keyword: str) -> list:
             "order": "desc",
             "page_type": "search",
             "scenario": "PAGE_GLOBAL_SEARCH",
-            "version": 2
+            "version": 2,
+            "country": "VN",
+            "currency": "VND",
+            "match_id": 11036481,
         }
         headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-            "Referer": "https://shopee.vn/",
-            "X-API-SOURCE": "pc",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15",
+            "Referer": f"https://shopee.vn/search?keyword={keyword}",
+            "X-API-SOURCE": "rweb",
+            "X-Shopee-Language": "vi",
+            "Accept": "application/json",
+            "af-ac-enc-dat": "null",
         }
-        resp = requests.get(url, params=params, headers=headers, timeout=10)
+        resp = requests.get(url, params=params, headers=headers, timeout=15)
+        print("Search status:", resp.status_code)
+        print("Search response:", resp.text[:500])
+        
         data = resp.json()
         items = data.get("items", [])
+
+        if not items:
+            # Thử API v2
+            url2 = "https://shopee.vn/api/v2/search_items/"
+            params2 = {
+                "by": "relevancy",
+                "keyword": keyword,
+                "limit": 5,
+                "newest": 0,
+                "order": "desc",
+            }
+            resp2 = requests.get(url2, params=params2, headers=headers, timeout=15)
+            print("Search v2 status:", resp2.status_code)
+            print("Search v2 response:", resp2.text[:500])
+            data = resp2.json()
+            items = data.get("items", [])
+
         results = []
         for item in items[:5]:
-            info = item.get("item_basic", {})
+            info = item.get("item_basic", {}) or item
             name = info.get("name", "")
             price = info.get("price", 0) / 100000
             original_price = info.get("price_before_discount", 0) / 100000
             shop_id = info.get("shopid", "")
             item_id = info.get("itemid", "")
-            stock = info.get("stock", 0)
             sold = info.get("historical_sold", 0)
             rating = info.get("item_rating", {}).get("rating_star", 0)
             discount = info.get("discount", "")
+
+            if not name or not shop_id:
+                continue
 
             product_url = f"https://shopee.vn/product/{shop_id}/{item_id}"
             afl_link = make_affiliate_link(product_url)
@@ -198,12 +227,12 @@ def search_shopee(keyword: str) -> list:
                 "price": price,
                 "original_price": original_price,
                 "url": afl_link,
-                "stock": stock,
                 "sold": sold,
-                "rating": round(rating, 1),
+                "rating": round(float(rating), 1),
                 "discount": discount
             })
         return results
+
     except Exception as e:
         logger.error(f"Search error: {e}")
         return []
