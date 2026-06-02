@@ -16,6 +16,8 @@ from telegram.ext import (
 )
 import yt_dlp
 
+from urllib.parse import urlencode
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -141,11 +143,20 @@ def check_rate_limit(user_id: int, username: str) -> bool:
 
 # ============ SCRAPER API ============
 def scraper_get(url: str, params: dict = None) -> dict:
-    """Request qua ScraperAPI để bypass chặn IP"""
+    """
+    Gọi ScraperAPI và trả về JSON an toàn.
+    Nếu response không phải JSON sẽ log đầy đủ để debug.
+    """
+
     try:
+        if not SCRAPER_API_KEY:
+            logger.error("SCRAPER_API_KEY chưa được cấu hình!")
+            return {}
+
         query_string = ""
         if params:
-            query_string = "?" + "&".join(f"{k}={v}" for k, v in params.items())
+           query_string = "?" + urlencode(params)
+            )
 
         payload = {
             "api_key": SCRAPER_API_KEY,
@@ -153,16 +164,74 @@ def scraper_get(url: str, params: dict = None) -> dict:
             "country_code": "vn",
             "render": "false"
         }
+
         resp = requests.get(
             "https://api.scraperapi.com",
             params=payload,
-            timeout=30
+            timeout=30,
+            headers={
+                "User-Agent": (
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                    "AppleWebKit/537.36 "
+                    "(KHTML, like Gecko) "
+                    "Chrome/125.0 Safari/537.36"
+                )
+            }
         )
-        print(f"ScraperAPI [{url[:50]}] status: {resp.status_code}")
-        print(f"ScraperAPI response: {resp.text[:300]}")
-        return resp.json()
+
+        logger.info(f"ScraperAPI status: {resp.status_code}")
+        logger.info(
+            f"ScraperAPI content-type: "
+            f"{resp.headers.get('content-type')}"
+        )
+
+        if resp.status_code != 200:
+            logger.error(
+                f"ScraperAPI HTTP {resp.status_code}: "
+                f"{resp.text[:500]}"
+            )
+            return {}
+
+        text = resp.text.strip()
+
+        if not text:
+            logger.error("ScraperAPI trả về response rỗng")
+            return {}
+
+        try:
+            return resp.json()
+
+        except Exception as json_error:
+
+            logger.error(
+                f"Không parse được JSON: {json_error}"
+            )
+
+            logger.error(
+                f"Response đầu tiên:\n{text[:2000]}"
+            )
+
+            if "monthly limit" in text.lower():
+                logger.error("Có thể đã hết credit ScraperAPI")
+
+            if "access denied" in text.lower():
+                logger.error("Shopee đang chặn request")
+
+            if "forbidden" in text.lower():
+                logger.error("Shopee trả về 403")
+
+            return {}
+
+    except requests.exceptions.Timeout:
+        logger.error("ScraperAPI timeout")
+        return {}
+
+    except requests.exceptions.ConnectionError:
+        logger.error("Không kết nối được ScraperAPI")
+        return {}
+
     except Exception as e:
-        logger.error(f"ScraperAPI error: {e}")
+        logger.exception(f"ScraperAPI error: {e}")
         return {}
 
 # ============ SHOPEE FUNCTIONS ============
