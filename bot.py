@@ -156,7 +156,6 @@ def scraper_get(url: str, params: dict = None) -> dict:
         query_string = ""
         if params:
            query_string = "?" + urlencode(params)
-            )
 
         payload = {
             "api_key": SCRAPER_API_KEY,
